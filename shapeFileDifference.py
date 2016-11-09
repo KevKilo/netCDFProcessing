@@ -28,9 +28,6 @@ if len(sys.argv) <> 3:
 shapeFileNamePos = sys.argv[ 1 ]
 shapeFileNameNeg = sys.argv[ 2 ]
 
-# create list of shapeFiles
-#
-
 deBug = True
 
 # no. of rows ans columns in the eden grid
@@ -61,14 +58,14 @@ print "Opening\n%s\n%s" % ( shapeFileNamePos, shapeFileNameNeg )
 
 driver = ogr.GetDriverByName( "ESRI Shapefile" )
 
-dataSourcePos = driver.CreateDataSource( shapeFileNamePos )
-dataSourceNeg = driver.CreateDataSource( shapeFileNameNeg )
+dataSourcePos = driver.Open( shapeFileNamePos, 0 )
+dataSourceNeg = driver.Open( shapeFileNameNeg, 0 )
 
 print type( dataSourcePos )
 print type( dataSourceNeg )
 
-layerPos = dataSourcePos.CreateLayer()
-layerNeg = dataSourceNeg.CreateLayer()
+layerPos = dataSourcePos.GetLayer()
+layerNeg = dataSourceNeg.GetLayer()
 
 for feature in layerPos:
 	currentRow = feature.GetFieldAsInteger( "row" )
@@ -159,7 +156,8 @@ outPathName = "/physical/gis/eden/" + outLayerName + ".shp"
 if os.path.isfile( outPathName ):
 
         print "File exists, must be deleted: %s" % outPathName 
-        systring = "rm /physical/gis/eden/*edenEpaAvgMay*"
+        systring = "rm " + outPathName 
+
         if ( os.system( systring ) ) == 0:
                 print "file deleted"
         else: print "could not delete file"

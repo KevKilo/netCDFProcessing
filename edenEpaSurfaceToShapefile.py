@@ -80,17 +80,21 @@ day = date_field[ 2 ]
 
 netCdfStartDate = datetime.date( int( year ), int( month ), int( day ) )
 
-# leave the day loop in for future efforts that may processs the
-# entire netCDF file
+# for each day in the netCdf file...
+#
 
 for day in range( 0, ntime ):
 
-	day_increment = datetime.timedelta( days = day )
+	day_offset = datetime.timedelta( days = day )
 
-	stage_surface_date = netCdfStartDate + day_increment
+	stage_surface_date = netCdfStartDate + day_offset
 
 	dateStamp = "%d%02d%02d" % ( stage_surface_date.year, stage_surface_date.month, stage_surface_date.day )
 	iso_date = "%d-%02d-%02d" % ( stage_surface_date.year, stage_surface_date.month, stage_surface_date.day )
+
+# For each column for each row
+# calc depth from stage and lsel
+#
 
         for i in range( 0, nrowStage ):
                 for j in range( 0, ncolStage ):
@@ -209,22 +213,18 @@ for day in range( 0, ntime ):
 			feature = ogr.Feature( grid_layer_defn )
 #
 #	This code would not work until I casted the depth as float
-#	in both lines that  Set the WaterDepth field
 #	But the rest of them worked fine, probably b/c they are ints
 #
 
 			feature.SetField( "WaterDepth", float( depth[ i, j ] ) ) 
 			feature.SetField( "Stage", float( stage[day, i, j ] ) ) 
+			feature.SetField( "row", i ) 
+			feature.SetField( "col", j ) 
 # 
 # Fields of the feature are set individually, then destroyed
 # the new one is created above with the same grid_layer_defn...
 # i think?
 
-# not sure why this is in here twice
-##		feature.SetField( 'WaterDepth', depth[ i, j ] ) 
-
-			feature.SetField( "row", i ) 
-			feature.SetField( "col", j ) 
 
 			ring = ogr.Geometry( ogr.wkbLinearRing )
 

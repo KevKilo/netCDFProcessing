@@ -23,6 +23,8 @@ from scipy import stats
 
 deBug = False
 
+##shapeFileDir = "/physical/util/shapeFiles/"
+##shapeFileDir = "/physical/gis/eden/recovery/"
 shapeFileDir = "/physical/gis/eden/May/"
 
 # no. of rows ans columns in the eden grid
@@ -30,7 +32,9 @@ shapeFileDir = "/physical/gis/eden/May/"
 nrow = 405
 ncol = 287
 
-#only 31 days in May, but we are looking at 16 Mays from 2000 to 2015
+# set for max number of shapefiles to aggregate
+# e.g only 31 days in May, but we are looking at 16 Mays from 2000 to 2015
+
 ndays = 500 
 
 # create arrrays
@@ -47,6 +51,8 @@ stageAvg = numpy.zeros( ( 405, 287 ), 'f' )
 
 ##systring = "ls " + shapeFileDir + "eden_epa20000501.shp"
 systring = "ls " + shapeFileDir + "*.shp"
+
+print systring
 
 shapeFileList = os.popen( systring, 'r' )
 
@@ -96,8 +102,8 @@ print "no. cols: %d" % ( len( colList ) )
 
 for i in range( 0, 46818 ):
 
-	stageAvg[ rowList[ i ], colList[ i ] ] = numpy.mean( stage[ :, rowList[ i ], colList[ i ] ] )
-	depthAvg[ rowList[ i ], colList[ i ] ] = numpy.mean( depth[ :, rowList[ i ], colList[ i ] ] )
+	stageAvg[ rowList[ i ], colList[ i ] ] = numpy.mean( stage[ 0:day:1, rowList[ i ], colList[ i ] ] )
+	depthAvg[ rowList[ i ], colList[ i ] ] = numpy.mean( depth[ 0:day:1, rowList[ i ], colList[ i ] ] )
 
 ##	if deBug: print "Avg stage: %f" % ( stageAvg[ i, j ] )
 ##	if deBug: print "Avg depth: %f" % ( depthAvg[ i, j ] )
@@ -130,25 +136,29 @@ outDriver = ogr.GetDriverByName( "ESRI Shapefile" )
 
 if deBug: print "Creating Final Layer"
 
-outLayerName = "edenEpaAvgMay" 
-outPathName = "/physical/gis/eden/" + outLayerName + ".shp"
+outLayerName = "edenEpaAvg" 
+outDirName = shapeFileDir + "avg/" 
+outPathBaseName = outDirName  + outLayerName 
+outPathShapeName = outDirName +  outLayerName + ".shp"
 
 # Delete shapefile if it exists
 #
  
-if os.path.isfile( outPathName ):
+if os.path.isfile( outPathShapeName ):
 
-        print "File exists, must be deleted: %s" % outPathName 
-        systring = "rm /physical/gis/eden/*edenEpaAvgMay*"
+        print "File exists, must be deleted: %s" % outPathShapeName 
+        systring = "rm " + outPathBaseName + ".*"
+
         if ( os.system( systring ) ) == 0:
                 print "file deleted"
         else: print "could not delete file"
 
-# Create Data Source: the directory where the shapefile goes (depends on driver)
+# Create Data Source: the directory where the shapefile goes (operates on driver)
 #
 
 if deBug: print "Creating outDataSource"
-outDataSource = outDriver.CreateDataSource( "/physical/gis/eden" ) 
+
+outDataSource = outDriver.CreateDataSource( outDirName )  
 
 # Create Layer: names the shapefie (depends on spatial reference)
 #
