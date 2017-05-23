@@ -24,7 +24,7 @@ from scipy import stats
 deBug = False
 
 shapeFileDir = "/physical/util/testIn/"
-##shapeFileDir = "/physical/gis/eden/recovery/"
+####shapeFileDir = "/physical/gis/eden/recovery/"
 
 # no. of rows ans columns in the eden grid
 #
